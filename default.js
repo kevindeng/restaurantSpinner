@@ -181,7 +181,7 @@ $(function() {
     var h2 = window.innerHeight - $('.chat-entry').outerHeight() -
       $('.chat-info').outerHeight();
     cm.css('max-height', h2);
-    cm.scrollTop(cm.scrollHeight);
+    cm.scrollTop(cm[0].scrollHeight);
   }
 
   function load(data) {
@@ -444,6 +444,7 @@ $(function() {
       d.addClass('same-user');
     }
     $('.chat-messages').append(d);
+    resize();
   }
 
   //---------------------------------------------------------------
