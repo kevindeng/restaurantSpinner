@@ -474,7 +474,7 @@ $(function() {
       return;
     }
     for (var i = 0; i < typingUsers.length; i++) {
-      if (typingUsers[i].id == m.uid) {
+      if (typingUsers[i].uid == m.uid) {
         return;
       }
     }
