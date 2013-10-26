@@ -133,5 +133,8 @@ var _locations = {
     'Menlo Park',
     'Redwood City',
     'San Mateo'
+  ],
+  'San Francisco': [
+    'San Francisco'
   ]
 };

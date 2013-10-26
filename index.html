@@ -1,213 +1,64 @@
 <html>
   <head>
     <title>Restaurant Picker</title>
+    <link rel="stylesheet" type="text/css" href="default.css">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/oauth.js"></script>
     <script type="text/javascript" src="http://oauth.googlecode.com/svn/code/javascript/sha1.js"></script>
-    <script src="data.js"></script>
-    <script src="default.js"></script>
-    <style type="text/css">
-    body {
-      font-family: 'Open Sans', sans-serif;
-      margin: 0;
-      overflow: hidden;
-    }
-
-    .header {
-      padding: 15px 35px 15px 35px;
-      width: 100%;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.25);
-      background: white;
-    }
-
-    .footer {
-      border-top: 1px solid rgba(0, 0, 0, 0.25);
-      height: 150px;
-      width: 100%;
-      position: fixed;
-      bottom: 0px;
-      background: white;
-    }
-
-    .spinner {
-      position: absolute;
-      width: 800px;
-      margin-left: -150px;
-      height: 100px;
-      margin-top: 23px;
-      left: 50%;
-      background: white;
-      border-radius: 5px;
-      overflow: hidden;
-      cursor: default;
-    }
-
-    .category {
-      font-size: 72px;
-      float: left;
-      height: 100px;
-      width: 100%;
-      text-align: center;
-      white-space: nowrap;
-    }
-
-    .category-list {
-      width: 300px;
-      height: 100px;
-      position: absolute;
-    }
-
-    .bt-spin {
-      position: absolute;
-      right: 0;
-      margin-right: 50px;
-      height: 100px;
-      width: 100px;
-      top: 23px;
-      border-radius: 15px;
-      cursor: pointer;
-      text-align: center;
-      font-size: 36px;
-      padding-top: 25px;
-      box-sizing: border-box;
-      -moz-box-sizing: border-box;
-      color: rgba(0, 0, 0, 0.2);
-    }
-
-    .bt-spin:hover {
-      background: rgba(0, 0, 0, 0.025);
-      color: rgba(0, 0, 0, 1);
-    }
-
-    .disabled {
-      cursor: default;
-    }
-
-    .footer-text {
-      position: absolute;
-      width: 250px;
-      height: 50px;
-      top: 50%;
-      left: 50%;
-      margin-left: -400px;
-      margin-top: -15px;
-      cursor: default;
-      font-size: 24px;
-    }
-
-    .header-text {
-      cursor: default;
-      font-size: 24px;
-      position: absolute;
-    }
-
-    .location-wrap {
-      display: inline-block;
-      margin: 10px 15px 10px 15px;
-      font-size: 24px;
-      cursor: pointer;
-      color: rgba(0, 0, 0, 0.2);
-    }
-
-    .location-wrap:hover {
-      color: black;
-    }
-
-    .location-wrap.loc-selected {
-      color: black;
-    }
-
-    .biz {
-      width: 320px;
-      margin: 10px;
-      border: 1px dashed rgba(0, 0, 0, 0.25);
-      padding: 15px;
-      border-radius: 10px;
-      color: rgba(0, 0, 0, 0.5);
-      cursor: default;
-      font-size: 16px;
-    }
-
-    .biz:hover {
-      background: rgba(255, 165, 0, 0.025);
-    }
-
-    .biz-name a {
-      font-size: 20px;
-      color: black;
-      text-decoration: none;
-    }
-
-    .biz-name a:hover {
-      color: #CC0000;
-    }
-
-    .biz-rating {
-      margin-top: 3px;
-      margin-bottom: 3px;
-    }
-
-    .biz-rating img {
-      height: 15px;
-    }
-
-    .biz-pic {
-      width: 100px;
-      height: 100px;
-      float: left;
-      padding-top: 5px;
-    }
-
-    .biz-text {
-      float: left;
-      max-width: 200px;
-      margin-left: 20px;
-    }
-
-    .biz-categories {
-      font-size: 12px;
-    }
-
-    #biz-template {
-      display: none;
-    }
-
-    .content {
-      padding: 10px;
-      overflow-y: scroll;
-      position: absolute;
-      width: 100%;
-      top: 135px;
-      height: 1px;
-      box-sizing: border-box;
-      -moz-box-sizing: border-box;
-    }
-
-    </style>
+    <script type="text/javascript" src="http://cdn.pubnub.com/pubnub-3.5.47.min.js"></script>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="default.js"></script>
+    <script type="text/javascript" src="p2p.js"></script>
   </head>
   <body>
-    <div class="header">
-      <div class="locations"></div>
-    </div>
-    <div class="content"></div>
-    <div class="footer">
-      <div class="footer-text">Let's eat some</div>
-      <div class="spinner">
-        <div class="category-list"></div>
+    <div class="container">
+      <div class="right-block">
+        <div class="chat-messages"></div>
+        <div class="chat-entry">
+          <textarea class="chatbox empty">Type here to chat</textarea>
+          <div class="name-entry">
+            <input type="text" class="empty" size="25" id="uname" value="Enter your name here"></input>
+          </div>
+        </div>
       </div>
-      <div class="bt-spin">No.</div>
-    </div>
+      <div class="left-block">
+        <div class="header">
+        </div>
+        <div class="content"></div>
+        <div class="footer">
+          <div class="footer-text">
+            <span class="welcome"></span>
+            <span>Let's eat some</span>
+          </div>
+          <div class="spinner">
+            <div class="category-list"></div>
+          </div>
+          <div class="bt-spin">No.</div>
+        </div>
 
-    <div class="biz" id="biz-template">
-      <div class="biz-pic"><img></div>
-      <div class="biz-text">
-        <div class="biz-name"><a></a></div>
-        <div class="biz-city"></div>
-        <div class="biz-rating"><img/></div>
-        <div class="biz-review-cnt"></div>
-        <div class="biz-categories"></div>
+        <div class="biz" id="biz-template">
+          <div class="biz-pic"><img></div>
+          <div class="biz-text">
+            <div class="biz-name"><a></a></div>
+            <div class="biz-city"></div>
+            <div class="biz-rating"><img/></div>
+            <div class="biz-review-cnt"></div>
+            <div class="biz-categories"></div>
+          </div>
+        </div>
+
+        <div class="chat-message" id="chat-message-template">
+          <div class="chat-message-top">
+            <div class="chat-message-name"></div>
+            <div class="chat-message-time"></div>
+          </div>
+          <div class="chat-message-bottom">
+
+          </div>
+        </div>
       </div>
-    </div>
+      
+    </container>
   </body>
 </html>

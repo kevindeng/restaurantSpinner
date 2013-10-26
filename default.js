@@ -1,5 +1,39 @@
 $(function() {
 
+  var uid = localStorage.uid ? localStorage.uid : makeid();
+
+  var pubnub = PUBNUB.init({
+    publish_key   : 'pub-c-3c784d13-65af-4a96-a859-cce7b4d431bb',
+    subscribe_key : 'sub-c-7763ea46-3e12-11e3-9970-02ee2ddab7fe'
+  });
+
+  var dispatcher = {
+    'chatMessage': chatMessage
+  }
+
+  pubnub.subscribe({
+    channel: 'hello_world',
+    message: function(m) {
+      dispatcher[m.method](m);
+    },
+    connect: publish({
+      method: 'connect',
+      data: {
+        name: localStorage.uname,
+        'uid': uid
+      }
+    })
+  });
+
+  function publish(m) {
+    m.uid = uid;
+    m.uname = localStorage.uname;
+    pubnub.publish({
+      channel: 'hello_world',
+      message: m
+    });
+  }
+
   function makeid() {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -249,6 +283,90 @@ $(function() {
     window.setTimeout(function() {
       $('.bt-spin').click();
       resize();
-    }, 100);
+    }, 200);
   })();
+
+  //------------------------------------------------------------------
+
+  function chatMessage(m) {
+    var d = $('#chat-message-template').clone().removeAttr('id');
+    d.attr('data-uid', m.uid);
+    d.find('.chat-message-bottom').text(m.data.message);
+    var lastUid = $('.chat-messages').find('.chat-message').last().attr('data-uid');
+    if (lastUid != m.uid) {
+      var date = new Date();
+      function pad(n) {
+        return n.toString().length == 2 ? n.toString() : ('0' + n);
+      }
+      var am = date.getHours() < 12;
+      var t = date.getHours() % 12;
+      var dateStr = (date.getMonth() + 1) + '/' + date.getDate() + ',' +
+        ' ' + pad((t == 0 && !am) ? 12 : t) + ':' + pad(date.getMinutes()) +
+        (am ? 'am' : 'pm');
+     
+      d.find('.chat-message-name').text(m.uname);
+      d.find('.chat-message-time').text(dateStr);
+    }
+    else {
+      d.find('.chat-message-top').remove();
+      d.addClass('same-user');
+    }
+    $('.chat-messages').append(d);
+  }
+
+  function defaultText(e, text) {
+    e.focus(function() {
+    e.removeClass('empty');
+      if (e.val().trim() == text) {
+        e.val('');
+      }
+    }).blur(function() {
+      e.addClass('empty');
+      if (e.val().trim() == '') {
+        e.val(text);
+      }
+    });
+    return e;
+  }
+
+  var cb = $('.chatbox');
+  defaultText(cb, 'Type here to chat');
+  cb.keydown(function(e) {
+    var key = e.which;
+    if (key == 13 && !e.shiftKey) {
+      e.preventDefault();
+      var msg = cb.val();
+      cb.val('');
+      publish({
+        method: 'chatMessage',
+        data: {
+          message: msg
+        }
+      });
+    }
+  });
+
+  function nameSet() {;
+    $('.footer-text').css('margin-top', '-=10').find('.welcome').after('<br/>')
+      .text('Hello ' + localStorage.uname + ',').animate({opacity: 1}, 150);
+  }
+
+  var ni = $('#uname');
+  if (!localStorage.uname) {
+    cb.attr('disabled', true);
+    defaultText(ni, 'Enter your name here');
+    ni.keydown(function(e) {
+      if (e.which == 13) {
+        localStorage.uname = ni.val().trim();
+        e.preventDefault();
+        cb.removeAttr('disabled');
+        ni.fadeOut(150);
+        nameSet();
+      }
+    });
+  } else {
+    ni.hide();
+    nameSet();
+  }
+  
 });

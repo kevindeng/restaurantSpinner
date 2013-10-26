@@ -1,0 +1,289 @@
+body {
+  font-family: 'Open Sans', sans-serif;
+  margin: 0;
+  overflow: hidden;
+}
+
+.container {
+  height: auto;
+  overflow: hidden;
+}
+
+.left-block {
+  width: auto;
+  overflow: hidden;
+  height: 100%;
+}
+
+.right-block {
+  position: relative;
+  width: 300px;
+  float: right;
+  height: 100%;
+  border-left: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.header {
+  padding: 15px 35px 15px 35px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  background: white;
+}
+
+.content {
+  padding: 10px;
+  overflow-y: scroll;
+  height: 1px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.footer {
+  position: relative;
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+  height: 150px;
+  bottom: 0px;
+  background: white;
+}
+
+.spinner {
+  margin-top: 23px;
+  position: absolute;
+  height: 100px;
+  background: white;
+  overflow: hidden;
+  cursor: default;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+.category {
+  font-size: 72px;
+  float: left;
+  height: 100px;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.category-list {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.bt-spin {
+  position: absolute;
+  right: 0;
+  margin-right: 50px;
+  height: 100px;
+  width: 100px;
+  top: 23px;
+  border-radius: 15px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 36px;
+  padding-top: 25px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.bt-spin:hover {
+  background: rgba(0, 0, 0, 0.025);
+  color: rgba(0, 0, 0, 1);
+}
+
+.disabled {
+  cursor: default;
+}
+
+.footer-text {
+  position: absolute;
+  width: 250px;
+  height: 50px;
+  top: 50%;
+  left: 50%;
+  margin-left: -490px;
+  margin-top: -15px;
+  cursor: default;
+  font-size: 24px;
+  z-index: 999;
+}
+
+.header-text {
+  cursor: default;
+  font-size: 24px;
+  position: absolute;
+}
+
+.location-wrap {
+  display: inline-block;
+  margin: 10px 15px 10px 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.location-wrap:hover {
+  color: black;
+}
+
+.location-wrap.loc-selected {
+  color: black;
+}
+
+.biz {
+  width: 320px;
+  margin: 10px;
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  padding: 15px;
+  border-radius: 10px;
+  color: rgba(0, 0, 0, 0.5);
+  cursor: default;
+  font-size: 16px;
+}
+
+.biz:hover {
+  background: rgba(255, 165, 0, 0.025);
+}
+
+.biz-name a {
+  font-size: 20px;
+  color: black;
+  text-decoration: none;
+}
+
+.biz-name a:hover {
+  color: #CC0000;
+}
+
+.biz-rating {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.biz-rating img {
+  height: 15px;
+}
+
+.biz-pic {
+  width: 100px;
+  height: 100px;
+  float: left;
+  padding-top: 5px;
+}
+
+.biz-text {
+  float: left;
+  max-width: 200px;
+  margin-left: 20px;
+}
+
+.biz-categories {
+  font-size: 12px;
+}
+
+#biz-template {
+  display: none;
+}
+
+.chat-entry {
+  min-height: 150px;
+  max-height: 150px;
+  width: 100%;
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+  position: absolute;
+  bottom: 0;
+}
+
+.chatbox {
+  position: absolute;
+  width:100%;
+  height:100%; 
+  box-sizing: border-box; 
+  -moz-box-sizing: border-box;
+  resize: none;
+  outline: none;
+  border: none;
+  font-family: inherit;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.chatbox.empty {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.chat-message-template {
+  display: none;
+}
+
+.chat-messages {
+  position: absolute;
+  width: 100%;
+  bottom: 150px;
+  padding: 10px;
+  box-sizing: border-box; 
+  -moz-box-sizing: border-box;
+}
+
+.chat-message {
+  position: relative;
+  margin-top: 13px;
+  width: 100%;
+}
+
+.chat-message-time {
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  float: right;
+  margin-top: 3px;
+}
+
+.chat-message-name {
+  color: rgba(0, 0, 0, 0.75);
+  font-size: 14px;
+  text-transform: capitalize;
+  font-weight: bold;
+  float: left;
+}
+
+.chat-message-top {
+  height: 20px;
+}
+
+.chat-message-bottom {
+  margin-top: 0px;
+  font-size: 16px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.chat-message.same-user {
+  margin-top: 4px;
+}
+
+.name-entry {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+}
+
+#uname {
+  font-family: inherit;
+  padding: 5px;
+  text-transform: capitalize;
+}
+
+#uname.empty {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.footer-text .welcome {
+  font-size: 14px;
+  text-transform: capitalize;
+  padding-left: 1px;
+  opacity: 0;
+}
+
