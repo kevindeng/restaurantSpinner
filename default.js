@@ -10,7 +10,6 @@ $(function() {
   var dispatcher = {
     'chatMessage': chatMessage,
     'spin': spin,
-    'connect': connect,
     'systemMessage': systemMessage
   }
 
@@ -20,13 +19,21 @@ $(function() {
       dispatcher[m.method](m);
     },
     connect: publish({
-      method: 'connect',
+      method: 'systemMessage',
       data: {
-        name: localStorage.uname,
-        'uid': uid
+        message: firstCharUpperCase(localStorage.uname) + ' joined the room'
       }
     })
   });
+
+  $(window).unload(function() {
+    publish({
+      method: 'systemMessage',
+      data: {
+        message: firstCharUpperCase(localStorage.uname) + ' left the room'
+      }
+    })
+  })
 
   function publish(m) {
     m.uid = uid;
@@ -319,10 +326,6 @@ $(function() {
   })();
 
   //------------------------------------------------------------------
-
-  function connect(m) {
-    console.log(m.uname + 'connected');
-  }
 
   function systemMessage(m) {
     var d = $('#system-message-template').clone().removeAttr('id');
