@@ -10,7 +10,9 @@ $(function() {
   var dispatcher = {
     'chatMessage': chatMessage,
     'spin': spin,
-    'systemMessage': systemMessage
+    'systemMessage': systemMessage,
+    'startedTyping': startedTyping,
+    'stoppedTyping': stoppedTyping
   }
 
   pubnub.subscribe({
@@ -364,6 +366,57 @@ $(function() {
     $('.chat-messages').append(d);
   }
 
+  //---------------------------------------------------------------
+
+  var typingUsers = [];
+
+  function setChatStatus() {
+    var names = [];
+    for (var i = 0; i < typingUsers.length; i++) {
+      names.push(typingUsers[i].uname);
+    }
+    var duration = 100;
+    if (names.length > 0) {
+      $('.chat-status').fadeIn(duration);
+      $('.chat-messages').animate({'bottom': '+=30'}, duration);
+      var txt = names.map(firstCharUpperCase).join(', ') + ' ' +
+        (names.length > 1 ? 'are' : 'is') + ' typing...';
+      $('.chat-status').html(txt);
+    }
+    else {
+      $('.chat-status').fadeOut(duration);
+      $('.chat-messages').animate({'bottom': '-=30'}, duration);
+    }
+  }
+
+  function startedTyping(m) {
+    if (m.uid == uid) {
+      return;
+    }
+    for (var i = 0; i < typingUsers.length; i++) {
+      if (typingUsers[i].id == m.uid) {
+        return;
+      }
+    }
+    typingUsers.push(m);
+    setChatStatus();
+  }
+
+  function stoppedTyping(m) {
+    if (m.uid == uid) {
+      return;
+    }
+    for (var i = 0; i < typingUsers.length; i++) {
+      if (typingUsers[i].uid == m.uid) {
+        typingUsers.splice(i, 1);
+        break;
+      }
+    }
+    setChatStatus();
+  }
+
+  //---------------------------------------------------------------
+
   function defaultText(e, text) {
     e.focus(function() {
     e.removeClass('empty');
@@ -379,11 +432,12 @@ $(function() {
     return e;
   }
 
+  var notTypingAnymore = 0;
+  var startTypingTime = 0;
   var cb = $('.chatbox');
   defaultText(cb, 'Type here to chat');
   cb.keydown(function(e) {
-    var key = e.which;
-    if (key == 13 && !e.shiftKey) {
+    if (e.which == 13 && !e.shiftKey) {
       e.preventDefault();
       var msg = cb.val();
       cb.val('');
@@ -393,6 +447,21 @@ $(function() {
           message: msg
         }
       });
+    }
+    else if (e.which != 8) {
+      var now = new Date().getTime();
+      window.clearTimeout(notTypingAnymore);
+      notTypingAnymore = window.setTimeout(function() {
+        publish({
+          method: 'stoppedTyping'
+        });
+      }, 3000);
+      if (now - startTypingTime > 2500) {
+        publish({
+          method: 'startedTyping'
+        });
+        startTypingTime = now;
+      }
     }
   });
 

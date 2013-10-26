@@ -264,6 +264,14 @@ body {
   margin-top: 4px;
 }
 
+.chat-status {
+  position: absolute;
+  bottom: 150px;
+  padding: 10px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.33);
+}
+
 .name-entry {
   position: absolute;
   width: 100%;
