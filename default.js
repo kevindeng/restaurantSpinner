@@ -8,7 +8,10 @@ $(function() {
   });
 
   var dispatcher = {
-    'chatMessage': chatMessage
+    'chatMessage': chatMessage,
+    'spin': spin,
+    'connect': connect,
+    'systemMessage': systemMessage
   }
 
   pubnub.subscribe({
@@ -233,16 +236,19 @@ $(function() {
     };
   }
 
-  function spinButtonClickHandler() {
-    if ($('.bt-spin').hasClass('disabled')) {
-      return;
-    }
+  function spin(m) {
+    var e = $($('.category')[m.data.idx]);
+    showNewCategory({
+      'element': e,
+      'idx': m.data.idx
+    });
+  }
 
+  function showNewCategory(newSelection) {
     $('.content').animate({opacity: 0}, 350, function() {
       $('.content').children().remove();
     });
 
-    var newSelection = selectNewCategory();
     var done = false;
     var data = [];
     var locs = getLocations();
@@ -274,6 +280,32 @@ $(function() {
     });
   }
 
+  function firstCharUpperCase(s) {
+    return s.substring(0, 1).toUpperCase() + s.substring(1);
+  }
+
+  function spinButtonClickHandler() {
+    if (!$('.bt-spin').hasClass('disabled')) {
+      var category = selectNewCategory();
+      showNewCategory(category);
+      publish({
+        method: 'spin',
+        data: {
+          'idx': category.idx
+        }
+      });
+      window.setTimeout(function() {
+        publish({
+          method: 'systemMessage',
+          data: {
+            message: firstCharUpperCase(localStorage.uname) + ' randomed ' +
+              '<span class="sys-msg-cat">' + category.element.text() + '</span>'
+          }
+        });
+      }, 1000);
+    }
+  }
+
   (function init() {
     renderLocations();
     renderSpinner();
@@ -288,12 +320,27 @@ $(function() {
 
   //------------------------------------------------------------------
 
+  function connect(m) {
+    console.log(m.uname + 'connected');
+  }
+
+  function systemMessage(m) {
+    var d = $('#system-message-template').clone().removeAttr('id');
+    d.html(m.data.message);
+    $('.chat-messages').append(d);
+  }
+
   function chatMessage(m) {
     var d = $('#chat-message-template').clone().removeAttr('id');
     d.attr('data-uid', m.uid);
     d.find('.chat-message-bottom').text(m.data.message);
-    var lastUid = $('.chat-messages').find('.chat-message').last().attr('data-uid');
-    if (lastUid != m.uid) {
+    var lastMsg = $('.chat-messages').children().last();
+    console.log(lastMsg);
+    var lastChat = $('.chat-messages').find('.chat-message').last();
+    console.log(lastChat);
+    console.log(lastMsg === lastChat);
+    if (lastChat.length == 0 || (lastMsg.length > 0 && lastMsg[0] !== lastChat[0])||
+      lastChat.attr('data-uid') != m.uid) {
       var date = new Date();
       function pad(n) {
         return n.toString().length == 2 ? n.toString() : ('0' + n);
