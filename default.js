@@ -1,6 +1,11 @@
 $(function() {
 
+  var roomName = 'HelloWorld';
+
   var uid = localStorage.uid ? localStorage.uid : makeid();
+  localStorage.uid = uid;
+
+  var spinOnLoad = true;
 
   var pubnub = PUBNUB.init({
     publish_key   : 'pub-c-3c784d13-65af-4a96-a859-cce7b4d431bb',
@@ -12,38 +17,105 @@ $(function() {
     'spin': spin,
     'systemMessage': systemMessage,
     'startedTyping': startedTyping,
-    'stoppedTyping': stoppedTyping
+    'stoppedTyping': stoppedTyping,
+    'leaveRoom': leaveRoom,
+    'ping': ping,
+    'pong': pong,
+    'nameChange': nameChange
   }
 
   pubnub.subscribe({
-    channel: 'hello_world',
+    channel: roomName,
     message: function(m) {
       dispatcher[m.method](m);
     },
-    connect: publish({
-      method: 'systemMessage',
-      data: {
-        message: firstCharUpperCase(localStorage.uname) + ' joined the room'
+    connect: function() {
+      publish({
+        method: 'systemMessage',
+        data: {
+          message: userName() + ' joined the room'
+        }
+      });
+      publish({
+        method: 'ping'
+      });
+      spinOnLoad = false;
+      if (localStorage.uname) {
+        $('.chatbox').removeAttr('disabled');
       }
-    })
+    }
   });
-
-  $(window).unload(function() {
-    publish({
-      method: 'systemMessage',
-      data: {
-        message: firstCharUpperCase(localStorage.uname) + ' left the room'
-      }
-    })
-  })
 
   function publish(m) {
     m.uid = uid;
-    m.uname = localStorage.uname;
+    m.uname = userName();
     pubnub.publish({
-      channel: 'hello_world',
+      channel: roomName,
       message: m
     });
+  }
+
+  var roomOccupants = [{'uid' : uid, 'uname': userName()}];
+  updateChatInfo();
+
+  function ping(m) {
+    publish({
+      method: 'pong'
+    });
+  }
+
+  function pong(m) {
+    for (var i = 0; i < roomOccupants.length; i++) {
+      if (roomOccupants[i].uid == m.uid) {
+        return;
+      }
+    }
+    roomOccupants.push(m);
+    updateChatInfo();
+  }
+
+  function nameChange(m) {
+    for (var i = 0; i < roomOccupants.length; i++) {
+      if (roomOccupants[i].uid == m.uid) {
+        roomOccupants[i].uname = m.uname;
+      }
+    }
+    updateChatInfo();
+  }
+
+  function leaveRoom(m) {
+    publish({
+      method: 'systemMessage',
+      data: {
+        message: m.uname + ' left the room'
+      }
+    });
+    for (var i = 0; i < roomOccupants.length; i++) {
+      if (roomOccupants[i].uid == m.uid) {
+        roomOccupants.splice(i, 1);
+        break;
+      }
+    }
+    updateChatInfo();
+  }
+
+  function updateChatInfo() {
+    var names = [];
+    for (var i = 0; i < roomOccupants.length; i++) {
+      names.push(firstCharUpperCase(roomOccupants[i].uname));
+    }
+    $('.chat-info').html('Room ' + roomName + ', occupants: ' + names.join(', '));
+  }
+
+  window.onbeforeunload = function() {
+    publish({
+      method: 'leaveRoom'
+    });
+    return null;
+  }
+
+  function userName() {
+    return firstCharUpperCase(localStorage.uname ? localStorage.uname : 'Unknown');
   }
 
   function makeid() {
@@ -104,6 +176,12 @@ $(function() {
     var h = window.innerHeight - $('.header').outerHeight() -
       $('.footer').outerHeight();
     $('.content').css('height', h);
+
+    var cm = $('.chat-messages');
+    var h2 = window.innerHeight - $('.chat-entry').outerHeight() -
+      $('.chat-info').outerHeight();
+    cm.css('max-height', h2);
+    cm.scrollTop(cm.scrollHeight);
   }
 
   function load(data) {
@@ -307,8 +385,8 @@ $(function() {
         publish({
           method: 'systemMessage',
           data: {
-            message: firstCharUpperCase(localStorage.uname) + ' randomed ' +
-              '<span class="sys-msg-cat">' + category.element.text() + '</span>'
+            message: userName() + ' randomed <span class="sys-msg-cat">' +
+              category.element.text() + '</span>'
           }
         });
       }, 1000);
@@ -321,10 +399,15 @@ $(function() {
     $(window).resize(resize);
     $('.location-wrap').click(locationClickHandler);
     $('.bt-spin').click(spinButtonClickHandler);
+    var rsz = window.setInterval(resize, 50);
     window.setTimeout(function() {
-      $('.bt-spin').click();
-      resize();
-    }, 200);
+      window.clearInterval(rsz);
+    }, 2000);
+    window.setTimeout(function() {
+      if (spinOnLoad) {
+        $('.bt-spin').click();
+      }
+    }, 1000);
   })();
 
   //------------------------------------------------------------------
@@ -340,10 +423,7 @@ $(function() {
     d.attr('data-uid', m.uid);
     d.find('.chat-message-bottom').text(m.data.message);
     var lastMsg = $('.chat-messages').children().last();
-    console.log(lastMsg);
     var lastChat = $('.chat-messages').find('.chat-message').last();
-    console.log(lastChat);
-    console.log(lastMsg === lastChat);
     if (lastChat.length == 0 || (lastMsg.length > 0 && lastMsg[0] !== lastChat[0])||
       lastChat.attr('data-uid') != m.uid) {
       var date = new Date();
@@ -378,14 +458,14 @@ $(function() {
     var duration = 100;
     if (names.length > 0) {
       $('.chat-status').fadeIn(duration);
-      $('.chat-messages').animate({'bottom': '+=30'}, duration);
+      $('.chat-messages').animate({'bottom': 180}, duration);
       var txt = names.map(firstCharUpperCase).join(', ') + ' ' +
         (names.length > 1 ? 'are' : 'is') + ' typing...';
       $('.chat-status').html(txt);
     }
     else {
       $('.chat-status').fadeOut(duration);
-      $('.chat-messages').animate({'bottom': '-=30'}, duration);
+      $('.chat-messages').animate({'bottom': 150}, duration);
     }
   }
 
@@ -440,13 +520,18 @@ $(function() {
     if (e.which == 13 && !e.shiftKey) {
       e.preventDefault();
       var msg = cb.val();
-      cb.val('');
-      publish({
-        method: 'chatMessage',
-        data: {
-          message: msg
-        }
-      });
+      if (msg.trim().length > 0) {
+        cb.val('');
+        publish({
+          method: 'chatMessage',
+          data: {
+            message: msg
+          }
+        });
+        publish({
+          method: 'stoppedTyping'
+        });
+      }
     }
     else if (e.which != 8) {
       var now = new Date().getTime();
@@ -481,6 +566,9 @@ $(function() {
         cb.removeAttr('disabled');
         ni.fadeOut(150);
         nameSet();
+        publish({
+          method: 'nameChange'
+        });
       }
     });
   } else {

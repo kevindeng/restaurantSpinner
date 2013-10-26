@@ -226,6 +226,7 @@ body {
   padding: 10px;
   box-sizing: border-box; 
   -moz-box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .chat-message {
@@ -267,6 +268,14 @@ body {
 .chat-status {
   position: absolute;
   bottom: 150px;
+  padding: 10px;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.33);
+}
+
+.chat-info {
+  position: absolute;
+  top: 0px;
   padding: 10px;
   font-size: 13px;
   color: rgba(0, 0, 0, 0.33);
